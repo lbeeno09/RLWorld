@@ -17,15 +17,12 @@ class RLWORLD_API UPursuerInteractor : public ULearningAgentsInteractor
 	GENERATED_BODY()
 	
 public:
-	virtual void SpecifyAgentObservation_Implementation(FLearningAgentsObservationSchemaElement& OutObservationSchemaElement, ULearningAgentsObservationSchema* InObservationSchema) override;
-	virtual void GatherAgentObservation_Implementation(FLearningAgentsObservationObjectElement& OutObservationObjectElement, ULearningAgentsObservationObject* InObservationObject, const int32 AgentId) override;
+	virtual void SpecifyAgentObservation_Implementation(FLearningAgentsObservationSchemaElement& OutElement, ULearningAgentsObservationSchema* chema) override;
+	virtual void GatherAgentObservations_Implementation(TArray<FLearningAgentsObservationObjectElement>& OutElement, ULearningAgentsObservationObject* Obj, const TArray<int32>& AgentIds) override;
 	virtual void SpecifyAgentAction_Implementation(FLearningAgentsActionSchemaElement& OutActionSchemaElement, ULearningAgentsActionSchema* InActionSchema) override;
-	virtual void PerformAgentAction_Implementation(const ULearningAgentsActionObject* InActionObject, const FLearningAgentsActionObjectElement& InActionObjectElement, const int32 AgentId) override;
+	virtual void PerformAgentActions_Implementation(const ULearningAgentsActionObject* InActionObject, const TArray<FLearningAgentsActionObjectElement>& InActionObjectElements, const TArray<int32>& AgentIds) override;
 
 private:
-	FLearningAgentsObservationSchemaElement LocationElement;
-	FLearningAgentsObservationSchemaElement VelocityElement;
-	FLearningAgentsObservationSchemaElement CharacterStructElement;
-
-	FLearningAgentsActionSchemaElement ActionElement;
+	FLearningAgentsObservationSchemaElement CharacterRootElement;
+	FLearningAgentsActionSchemaElement ActionRootElement;
 };

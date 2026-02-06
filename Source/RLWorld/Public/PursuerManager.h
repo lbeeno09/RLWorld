@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "LearningAgentsManager.h"
 #include "PursuerInteractor.h"
+#include "LearningAgentsPolicy.h"
 #include "PursuerManager.generated.h"
 
 UCLASS()
@@ -31,4 +32,7 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "LearningAgents")
 	TObjectPtr<UPursuerInteractor> Interactor;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "LearningAgents")
+	TObjectPtr<ULearningAgentsPolicy> Policy;
 };

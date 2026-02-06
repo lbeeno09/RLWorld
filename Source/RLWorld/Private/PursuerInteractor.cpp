@@ -2,87 +2,71 @@
 
 
 #include "PursuerInteractor.h"
+#include "PursuerAgent.h"
 #include "GameFramework/Pawn.h"
 
 void UPursuerInteractor::SpecifyAgentObservation_Implementation(FLearningAgentsObservationSchemaElement& OutObservationSchemaElement, ULearningAgentsObservationSchema* InObservationSchema)
 {
-	if(InObservationSchema)
-	{
-		return;
-	}
-
-	LocationElement = ULearningAgentsObservations::SpecifyLocationObservation(InObservationSchema, 1.0f, FName("Location"));
-	VelocityElement = ULearningAgentsObservations::SpecifyVelocityObservation(InObservationSchema, 1.0f, FName("Velocity"));
+	FLearningAgentsObservationSchemaElement LocationElement = ULearningAgentsObservations::SpecifyLocationObservation(InObservationSchema, 1.0f);
+	FLearningAgentsObservationSchemaElement VelocityElement = ULearningAgentsObservations::SpecifyVelocityObservation(InObservationSchema, 1.0f);
 
 	TMap<FName, FLearningAgentsObservationSchemaElement> CharacterMap;
-	CharacterMap.Add(FName("Location"), LocationElement);
-	CharacterMap.Add(FName("Velocity"), VelocityElement);
+	CharacterMap.Add(FName("TargetLocation"), LocationElement);
+	CharacterMap.Add(FName("SelfVelocity"), VelocityElement);
 
-	CharacterStructElement = ULearningAgentsObservations::SpecifyStructObservation(InObservationSchema, CharacterMap, FName("CharacterState"));
-
-	OutObservationSchemaElement = CharacterStructElement;
+	CharacterRootElement = ULearningAgentsObservations::SpecifyStructObservation(InObservationSchema, CharacterMap);
+	OutObservationSchemaElement = CharacterRootElement;
 }
 
-void UPursuerInteractor::GatherAgentObservation_Implementation(FLearningAgentsObservationObjectElement& OutObservationObjectElement, ULearningAgentsObservationObject* InObservationObject, const int32 AgentId)
+void UPursuerInteractor::GatherAgentObservations_Implementation(TArray<FLearningAgentsObservationObjectElement>& OutObservationObjectElement, ULearningAgentsObservationObject* InObservationObject, const TArray<int32>& AgentIds)
 {
-	AActor* AgentActor = Cast<AActor>(GetAgent(AgentId));
-	if(!AgentActor || !InObservationObject)
+	for(const int32 AgentId : AgentIds)
 	{
-		return;
+		APursuerAgent* Agent = Cast<APursuerAgent>(GetAgent(AgentId));
+		if(!Agent || !Agent->TargetObject)
+		{
+			continue;
+		}
+
+		ULearningAgentsObservations::MakeLocationObservation(
+			InObservationObject,
+			Agent->TargetObject->GetActorLocation(),
+			Agent->GetActorTransform()
+		);
+		ULearningAgentsObservations::MakeVelocityObservation(
+			InObservationObject,
+			Agent->GetVelocity(),
+			Agent->GetActorTransform()
+		);
 	}
+
 	
-	const FVector CurrentLoc = AgentActor->GetActorLocation();
-	const FVector CurrentVel = AgentActor->GetVelocity();
-	const FTransform AgentTransform = AgentActor->GetActorTransform();
-
-	ULearningAgentsObservations::MakeLocationObservation(
-		InObservationObject,
-		CurrentLoc,
-		AgentTransform,
-		FName("LocationObservation")
-	);
-	ULearningAgentsObservations::MakeVelocityObservation(
-		InObservationObject,
-		CurrentVel,
-		AgentTransform,
-		FName("VelocityObservation")
-	);
-
-	reinterpret_cast<int32&>(OutObservationObjectElement) = reinterpret_cast<const int32&>(CharacterStructElement);
+	OutObservationObjectElement = CharacterRootElement;
+	//memcpy(&OutObservationObjectElement, &CharacterRootElement, sizeof(int32));
 }
 
 void UPursuerInteractor::SpecifyAgentAction_Implementation(FLearningAgentsActionSchemaElement& OutActionSchemaElement, ULearningAgentsActionSchema* InActionSchema)
 {
-	if(!InActionSchema)
-	{
-		return;
-	}
-
-	ActionElement = ULearningAgentsActions::SpecifyVelocityAction(InActionSchema, 1.0f, FName("MoveAction"));
-
-	TMap<FName, FLearningAgentsActionSchemaElement> ActionMap;
-	ActionMap.Add(FName("Movement"), ActionElement);
-
-	OutActionSchemaElement = ULearningAgentsActions::SpecifyStructAction(InActionSchema, ActionMap, FName("CharacterActions"));
+	ActionRootElement = ULearningAgentsActions::SpecifyVelocityAction(InActionSchema, 1.0f);
+	OutActionSchemaElement = ActionRootElement;
 }
 
-void UPursuerInteractor::PerformAgentAction_Implementation(const ULearningAgentsActionObject* InActionObject, const FLearningAgentsActionObjectElement& InActionObjectElement, const int32 AgentId)
+void UPursuerInteractor::PerformAgentActions_Implementation(const ULearningAgentsActionObject* InActionObject, const TArray<FLearningAgentsActionObjectElement>& InActionObjectElements, const TArray<int32>& AgentIds)
 {
-	APawn* AgentPawn = Cast<APawn>(GetAgent(AgentId));
-	if(!AgentPawn || !InActionObject)
+	for(const int32 AgentId : AgentIds)
 	{
-		return;
+		APursuerAgent* Agent = Cast<APursuerAgent>(GetAgent(AgentId));
+		if(!Agent)
+		{
+			continue;
+		}
+
+		FVector MoveDir = FVector::ZeroVector;
+		ULearningAgentsActions::MakeVelocityAction(
+			const_cast<ULearningAgentsActionObject*>(InActionObject),
+			MoveDir,
+			Agent->GetActorTransform()
+		);
+		Agent->AddMovementInput(MoveDir);
 	}
-
-	FVector ActionVel = FVector::ZeroVector;
-	const FTransform AgentTransform = AgentPawn->GetActorTransform();
-		
-	ULearningAgentsActions::MakeVelocityAction(
-		const_cast<ULearningAgentsActionObject*>(InActionObject),
-		ActionVel,
-		AgentTransform,
-		FName("MoveAction")
-	);
-
-	AgentPawn->AddMovementInput(ActionVel);
 }

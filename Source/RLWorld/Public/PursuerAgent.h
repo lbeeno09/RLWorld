@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-//#include "LearningAgentsHelpers.h"
 #include "PursuerAgent.generated.h"
 
 UCLASS()
@@ -24,10 +23,6 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "LearningAgents")
-	int32 AgentId = -1;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="LearningAgents|AI")
+	AActor* TargetObject;
 };
