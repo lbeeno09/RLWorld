@@ -14,8 +14,10 @@ public class RLWorld : ModuleRules
             "Engine",
             "InputCore",
             "EnhancedInput",
+            "Learning",
             "LearningAgents",
-            "LearningAgentsTraining"
+            "LearningAgentsTraining",
+            "LearningTraining"
         });
 
         PrivateDependencyModuleNames.AddRange(new string[] { });
