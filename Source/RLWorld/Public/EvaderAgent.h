@@ -5,10 +5,13 @@
 #include "CoreMinimal.h"
 #include "CharacterBase.h"
 #include "GameFramework/Character.h"
-#include "PursuerAgent.generated.h"
+#include "EvaderAgent.generated.h"
 
+/**
+ * 
+ */
 UCLASS(Abstract)
-class RLWORLD_API APursuerAgent : public ACharacterBase
+class RLWORLD_API AEvaderAgent : public ACharacterBase
 {
 	GENERATED_BODY()
 
@@ -17,16 +20,8 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Walk")
 	float WalkSpeed = 250.0f;
 
-	UPROPERTY(EditAnywhere)
-	FVector SpawnLocation;
-
-	UPROPERTY(EditAnywhere)
-	FRotator SpawnRotation;
-
 protected:
 	/** Gameplay initialization */
 	virtual void BeginPlay() override;
 
-public:
-	void ResetToSpawn();
 };

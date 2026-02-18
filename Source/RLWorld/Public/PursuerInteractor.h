@@ -1,9 +1,12 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
 #include "CoreMinimal.h"
 #include "LearningAgentsInteractor.h"
+#include "LearningAgentsObservations.h"
+#include "LearningAgentsActions.h"
+#include "EvaderAgent.h"
 #include "PursuerInteractor.generated.h"
 
 /**
@@ -15,5 +18,17 @@ class RLWORLD_API UPursuerInteractor : public ULearningAgentsInteractor
 	GENERATED_BODY()
 	
 protected:
-	virtual void SpecifyAgentObservation()
+	AEvaderAgent* TargetObject;
+
+protected:
+	void SpecifyAgentObservation(FLearningAgentsObservationSchemaElement& OutObservationSchemaElement, ULearningAgentsObservationSchema* InObservationSchema);
+
+	void GatherAgentObservation(FLearningAgentsObservationObjectElement& OutObservationObjectElement, ULearningAgentsObservationObject* InObservationObject, const int32 AgentId);
+
+	void SpecifyAgentAction(FLearningAgentsActionSchemaElement& OutActionSchemaElement, ULearningAgentsActionSchema* InActionSchema);
+
+	void PerformAgentAction(const ULearningAgentsActionObject* InActionObject, const FLearningAgentsActionObjectElement& InActionObjectAlement, const int32 AgentId);
+
+public:
+	void SetTargetObject(AEvaderAgent*& Target);
 };

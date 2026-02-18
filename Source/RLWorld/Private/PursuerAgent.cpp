@@ -1,16 +1,9 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "PursuerAgent.h"
-#include "PursuerManager.h"
-#include "Camera/CameraComponent.h"
-#include "Components/SpotLightComponent.h"
-#include "EnhancedInputComponent.h"
-#include "Engine/World.h"
-#include "GameFramework/CharacterMovementComponent.h"
-#include "InputAction.h"
-#include "Kismet/GameplayStatics.h"
-#include "TimerManager.h"
 #include "LearningAgentsManager.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 void APursuerAgent::BeginPlay()
 {
@@ -18,6 +11,10 @@ void APursuerAgent::BeginPlay()
 
 	// Initialize the walk speed
 	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
+	// Store Spawn point
+	SpawnLocation = this->GetActorLocation();
+	SpawnRotation = this->GetActorRotation();
+
 
 	// Add self to LA Manager
 	TArray<AActor*> ActorList;
@@ -35,4 +32,15 @@ void APursuerAgent::BeginPlay()
 	{
 		UE_LOG(LogTemp, Error, L"No Learning Agents Manager found.");
 	}
+}
+
+void APursuerAgent::ResetToSpawn()
+{
+	SetActorLocationAndRotation(
+		SpawnLocation,
+		SpawnRotation,
+		false,
+		nullptr,
+		ETeleportType::TeleportPhysics
+	);
 }
