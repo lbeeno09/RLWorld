@@ -14,4 +14,6 @@ class RLWORLD_API UPursuerInteractor : public ULearningAgentsInteractor
 {
 	GENERATED_BODY()
 	
+protected:
+	virtual void SpecifyAgentObservation()
 };

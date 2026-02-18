@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "AIController.h"
-#include "AIC_Pursuer.generated.h"
+#include "PursuerAIController.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class RLWORLD_API AAIC_Pursuer : public AAIController
+class RLWORLD_API APursuerAIController : public AAIController
 {
 	GENERATED_BODY()
 	

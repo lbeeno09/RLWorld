@@ -3,27 +3,22 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "CharacterBase.h"
 #include "GameFramework/Character.h"
 #include "PursuerAgent.generated.h"
 
-UCLASS()
-class RLWORLD_API APursuerAgent : public ACharacter
+UCLASS(Abstract)
+class RLWORLD_API APursuerAgent : public ACharacterBase
 {
 	GENERATED_BODY()
 
-public:
-	// Sets default values for this character's properties
-	APursuerAgent();
+protected:
+	/** Default walk speed when not sprinting or recovering */
+	UPROPERTY(EditAnywhere, Category = "Walk")
+	float WalkSpeed = 250.0f;
 
 protected:
-	// Called when the game starts or when spawned
+	/** Gameplay initialization */
 	virtual void BeginPlay() override;
-
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 };
