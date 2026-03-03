@@ -3,19 +3,20 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Pursuer/PursuerAgent.h"
+#include "Pursuer/PursuerInteractor.h"
+#include "Pursuer/PursuerTrainingEnv.h"
+#include "Evader/EvaderAgent.h"
 #include "LearningAgentsManager.h"
-#include "PursuerAgent.h"
-#include "EvaderAgent.h"
-#include "PursuerInteractor.h"
+#include "LearningAgentsInteractor.h"
 #include "LearningAgentsPolicy.h"
 #include "LearningAgentsCritic.h"
-#include "PursuerTrainingEnv.h"
 #include "LearningAgentsCommunicator.h"
 #include "LearningAgentsPPOTrainer.h"
 #include "GameFramework/Actor.h"
 #include "PursuerManager.generated.h"
 
-UCLASS()
+UCLASS(Abstract)
 class RLWORLD_API APursuerManager : public AActor
 {
 	GENERATED_BODY()
@@ -24,6 +25,7 @@ protected:
 	UPROPERTY(EditAnywhere)
 	ULearningAgentsManager* PursuerManager;
 
+	UPROPERTY(EditAnywhere, Category = "Learning Agents|Settings")
 	bool bRunInference = false;
 
 	TArray<APursuerAgent*> PursuerActors;

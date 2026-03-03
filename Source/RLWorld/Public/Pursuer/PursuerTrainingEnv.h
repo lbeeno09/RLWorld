@@ -3,9 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Evader/EvaderAgent.h"
 #include "LearningAgentsTrainingEnvironment.h"
 #include "LearningAgentsCompletions.h"
-#include "EvaderAgent.h"
 #include "PursuerTrainingEnv.generated.h"
 
 /**

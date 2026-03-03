@@ -3,10 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Evader/EvaderAgent.h"
 #include "LearningAgentsInteractor.h"
 #include "LearningAgentsObservations.h"
 #include "LearningAgentsActions.h"
-#include "EvaderAgent.h"
 #include "PursuerInteractor.generated.h"
 
 /**

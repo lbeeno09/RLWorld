@@ -1,11 +1,9 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "PursuerInteractor.h"
-#include "LearningAgentsObservations.h"
-#include "LearningAgentsActions.h"
+#include "Pursuer/PursuerInteractor.h"
+#include "Pursuer/PursuerAgent.h"
 #include "LearningAgentsManager.h"
-#include "PursuerAgent.h"
 
 void UPursuerInteractor::SpecifyAgentObservation(FLearningAgentsObservationSchemaElement& OutObservationSchemaElement, ULearningAgentsObservationSchema* InObservationSchema)
 {

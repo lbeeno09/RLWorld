@@ -1,16 +1,6 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
-
-#include "PursuerManager.h"
-#include "PursuerAgent.h"
-#include "EvaderAgent.h"
-#include "PursuerInteractor.h"
-#include "LearningAgentsInteractor.h"
-#include "LearningAgentsPolicy.h"
-#include "LearningAgentsCritic.h"
-#include "PursuerTrainingEnv.h"
-#include "LearningAgentsCommunicator.h"
-#include "LearningAgentsPPOTrainer.h"
+#include "Pursuer/PursuerManager.h"
 #include "Kismet/GameplayStatics.h"
 
 // Sets default values

@@ -1,5 +1,6 @@
 ﻿// Copyright Epic Games, Inc. All Rights Reserved.
 
+using System.IO;
 using UnrealBuildTool;
 
 public class RLWorld : ModuleRules
@@ -15,12 +16,14 @@ public class RLWorld : ModuleRules
             "InputCore",
             "EnhancedInput",
             "Learning",
+            "LearningTraining",
             "LearningAgents",
             "LearningAgentsTraining",
-            "LearningTraining"
         });
 
         PrivateDependencyModuleNames.AddRange(new string[] { });
+
+        PublicIncludePaths.Add(Path.Combine(ModuleDirectory, "Public"));
 
         // Uncomment if you are using Slate UI
         // PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });

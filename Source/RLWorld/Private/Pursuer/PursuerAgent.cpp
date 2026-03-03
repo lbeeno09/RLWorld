@@ -1,6 +1,6 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
-#include "PursuerAgent.h"
+#include "Pursuer/PursuerAgent.h"
 #include "LearningAgentsManager.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -15,7 +15,6 @@ void APursuerAgent::BeginPlay()
 	SpawnLocation = this->GetActorLocation();
 	SpawnRotation = this->GetActorRotation();
 
-
 	// Add self to LA Manager
 	TArray<AActor*> ActorList;
 	UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName("PursuerManager"), ActorList);
@@ -26,6 +25,7 @@ void APursuerAgent::BeginPlay()
 		if(IsValid(ManagerComp))
 		{
 			ManagerComp->AddAgent(this);
+			bFoundManager = true;
 		}
 	}
 	if(!bFoundManager)

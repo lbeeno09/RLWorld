@@ -1,9 +1,8 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
-#include "PursuerTrainingEnv.h"
+#include "Pursuer/PursuerTrainingEnv.h"
+#include "Pursuer/PursuerAgent.h"
 #include "LearningAgentsRewards.h"
-#include "LearningAgentsCompletions.h"
-#include "PursuerAgent.h"
 #include "Kismet/KismetMathLibrary.h"
 
 void UPursuerTrainingEnv::GatherAgentReward(float& OutReward, const int32 AgentId)
