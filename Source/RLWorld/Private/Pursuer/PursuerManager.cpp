@@ -1,26 +1,24 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Pursuer/PursuerManager.h"
+#include "Pursuer/PursuerAgent.h"
+#include "Evader/EvaderAgent.h"
+#include "Pursuer/PursuerInteractor.h"
+#include "Pursuer/PursuerTrainingEnv.h"
+#include "LearningAgentsPolicy.h"
+#include "LearningAgentsCritic.h"
+#include "LearningAgentsPPOTrainer.h"
+#include "LearningCompletion.h"
 #include "Kismet/GameplayStatics.h"
+#include "NavigationSystem.h"
 
 // Sets default values
 APursuerManager::APursuerManager()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	PursuerManager = CreateDefaultSubobject<ULearningAgentsManager>(TEXT("Pursuer Manager"));
 	PursuerManager->SetMaxAgentNum(32);
-}
-
-void APursuerManager::OnConstruction(const FTransform& Transform)
-{
-	Super::OnConstruction(Transform);
-
-	if(RootComponent)
-	{
-		RootComponent->ComponentTags.AddUnique(FName("PursuerManager"));
-	}
 }
 
 // Called when the game starts or when spawned
@@ -28,53 +26,104 @@ void APursuerManager::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// Target(Evader) Actors
+	EvaderActor = Cast<AEvaderAgent>(UGameplayStatics::GetActorOfClass(GetWorld(), AEvaderAgent::StaticClass()));
+	
 	// Get Actors
 	TArray<AActor*> TargetList;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APursuerAgent::StaticClass(), TargetList);
-	for(AActor* Target : TargetList)
-	{
-		APursuerAgent* PursuerTarget = Cast<APursuerAgent>(Target);
 
-		PursuerActors.AddUnique(PursuerTarget);
-		AddTickPrerequisiteActor(PursuerTarget);
+	TArray<UObject*> ObjectList;
+	for(AActor* Actor : TargetList)
+	{
+		ObjectList.Add(Actor);
 	}
 
+	TArray<int32> OutAgentIds;
+	PursuerManager->AddAgents(OutAgentIds, ObjectList);
 
-	// Get Targets
-	EvaderActor = Cast<AEvaderAgent>(UGameplayStatics::GetActorOfClass(GetWorld(), AEvaderAgent::StaticClass()));
 
-	// Make Interactor
-	PursuerInteractor = Cast<UPursuerInteractor>(UPursuerInteractor::MakeInteractor(PursuerManager, UPursuerInteractor::StaticClass(), FName("PursuerInteractor")));
-	PursuerInteractor->SetTargetObject(EvaderActor);
+	// Setup Interactor
+	ULearningAgentsInteractor* TempInteractor = ULearningAgentsInteractor::MakeInteractor(
+		PursuerManager,
+		UPursuerInteractor::StaticClass(),
+		FName("PursuerInteractor"));
 
-	// Make Policy
-	ULearningAgentsInteractor* TempInteractor = Cast<ULearningAgentsInteractor>(PursuerInteractor);
-	PursuerPolicy = ULearningAgentsPolicy::MakePolicy(PursuerManager, TempInteractor, ULearningAgentsPolicy::StaticClass(), FName("PursuerPolicy"), PursuerDAEncoder, PursuerDAPolicy, PursuerDADecoder, !bRunInference, !bRunInference, !bRunInference, PursuerPolicySettings);
-
-	// Make Critic
-	ULearningAgentsPolicy* TempPolicy = Cast<ULearningAgentsPolicy>(PursuerPolicy);
-	PursuerCritic = ULearningAgentsCritic::MakeCritic(PursuerManager, TempInteractor, TempPolicy, ULearningAgentsCritic::StaticClass(), FName("PursuerCritic"), PursuerDACritic, !bRunInference, PursuerCriticSettings);
-
-	// Make Training Environment
-	PursuerTrainingEnv = Cast<UPursuerTrainingEnv>(ULearningAgentsTrainingEnvironment::MakeTrainingEnvironment(PursuerManager, ULearningAgentsTrainingEnvironment::StaticClass(), FName("PursuerTrainingEnvironment")));
-	PursuerTrainingEnv->SetTargetObject(EvaderActor);
-
-	// Spawn Shared Memory Training Process
-	FLearningAgentsSharedMemoryTrainerProcess TrainerProcess =  ULearningAgentsCommunicatorLibrary::SpawnSharedMemoryTrainingProcess(PursuerTrainerProcessSettings, PursuerSharedMemorySettings);
-	PursuerCommunicator = ULearningAgentsCommunicatorLibrary::MakeSharedMemoryCommunicator(TrainerProcess, PursuerTrainerProcessSettings, PursuerSharedMemorySettings);
-
-	// Make PPO Trainer
-	ULearningAgentsTrainingEnvironment* TempTrainingEnv = Cast<ULearningAgentsTrainingEnvironment>(PursuerTrainingEnv);
-	PursuerPPOTrainer = ULearningAgentsPPOTrainer::MakePPOTrainer(PursuerManager, TempInteractor, TempTrainingEnv, PursuerPolicy, PursuerCritic, PursuerCommunicator, ULearningAgentsPPOTrainer::StaticClass(), FName("PursuerPPOTrainer"), PursuerTrainerSettings);
-
-	// Reset Logic
-	if(bRunInference)
+	PursuerInteractor = Cast<UPursuerInteractor>(TempInteractor);
+	if(PursuerInteractor)
 	{
-		for(APursuerAgent* Actor : PursuerActors)
+		PursuerInteractor->SetTargetObject(EvaderActor);
+	}
+
+	// Setup Policy
+	PursuerPolicy = ULearningAgentsPolicy::MakePolicy(
+		PursuerManager,
+		TempInteractor,
+		ULearningAgentsPolicy::StaticClass(),
+		FName("PursuerPolicy"),
+		PursuerDAEncoder,
+		PursuerDAPolicy,
+		PursuerDADecoder,
+		!bRunInference, !bRunInference, !bRunInference, 
+		PursuerPolicySettings);
+
+	if(!bRunInference)
+	{
+		// Setup Critic
+		PursuerCritic = ULearningAgentsCritic::MakeCritic(
+			PursuerManager,
+			TempInteractor,
+			PursuerPolicy,
+			ULearningAgentsCritic::StaticClass(),
+			FName("PursuerCritic"),
+			PursuerDACritic,
+			!bRunInference,
+			PursuerCriticSettings);
+
+		// Setup Training Environment
+		ULearningAgentsTrainingEnvironment* TempEnv = ULearningAgentsTrainingEnvironment::MakeTrainingEnvironment(
+			PursuerManager,
+			UPursuerTrainingEnv::StaticClass(),
+			FName("PursuerTrainingEnvironment"));
+
+		PursuerTrainingEnv = Cast<UPursuerTrainingEnv>(TempEnv);
+		if(PursuerTrainingEnv)
 		{
-			Actor->ResetToSpawn();
+			PursuerTrainingEnv->SetTargetObject(EvaderActor);
 		}
+
+		// Spawn Shared Memory Training Process
+		FLearningAgentsSharedMemoryTrainerProcess TrainerProcess = ULearningAgentsCommunicatorLibrary::SpawnSharedMemoryTrainingProcess(
+			PursuerTrainerProcessSettings,
+			PursuerSharedMemorySettings);
+
+		PursuerCommunicator = ULearningAgentsCommunicatorLibrary::MakeSharedMemoryCommunicator(
+			TrainerProcess, 
+			PursuerTrainerProcessSettings,
+			PursuerSharedMemorySettings);
+
+
+		// Make PPO Trainer
+		PursuerPPOTrainer = ULearningAgentsPPOTrainer::MakePPOTrainer(
+			PursuerManager,
+			TempInteractor,
+			TempEnv, 
+			PursuerPolicy,
+			PursuerCritic,
+			PursuerCommunicator, 
+			ULearningAgentsPPOTrainer::StaticClass(),
+			FName("PursuerPPOTrainer"),
+			PursuerTrainerSettings);
 	}
+
+	//// Reset Logic
+	//if(bRunInference)
+	//{
+	//	for(APursuerAgent* Actor : PursuerActors)
+	//	{
+	//		Actor->ResetToSpawn();
+	//	}
+	//}
 }
 
 // Called every frame
@@ -82,13 +131,65 @@ void APursuerManager::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if(bRunInference)
+	if(bRunInference && PursuerPolicy)
 	{
 		PursuerPolicy->RunInference(1.0f);
 	}
-	else
+	else if(PursuerPPOTrainer && PursuerTrainingEnv)
 	{
-		PursuerPPOTrainer->RunTraining(PursuerTrainerTrainingSettings, PursuerTrainingGameSettings, true, true);
+		PursuerPPOTrainer->RunTraining(PursuerTrainingSettings, PursuerGameSettings, true, true);
+
+		UE::Learning::ECompletionMode CompletionStatus = PursuerTrainingEnv->GetAgentCompletion(0);
+		if(CompletionStatus == UE::Learning::ECompletionMode::Terminated)
+		{
+			HandleAgentReset(0);
+			PursuerManager->ResetAgent(0);
+		}
+
 	}
 }
 
+void APursuerManager::HandleAgentReset(const int32 AgentId)
+{
+	UNavigationSystemV1* NavSys = FNavigationSystem::GetCurrent<UNavigationSystemV1>(GetWorld());
+	if(!NavSys || !EvaderActor)
+	{
+		return;
+	}
+
+	APursuerAgent* Pursuer = Cast<APursuerAgent>(PursuerManager->GetAgent(AgentId));
+	if(!Pursuer)
+	{
+		return;
+	}
+
+	// Evader Spawn
+	FNavLocation EvaderSpawn;
+	if(NavSys->GetRandomReachablePointInRadius(FVector::ZeroVector, 3000.0f, EvaderSpawn))
+	{
+		EvaderActor->SetActorLocation(EvaderSpawn.Location);
+		EvaderActor->PickNewGoal();
+	}
+
+
+	// Pursuer Spawn
+	FNavLocation RandomLocation;
+	bool bValidLocationFound = false;
+	int32 RetryCount = 0;
+	while(!bValidLocationFound && RetryCount < 10)
+	{
+		if(NavSys->GetRandomReachablePointInRadius(FVector::ZeroVector, 5000.0f, RandomLocation))
+		{
+			float SpawnDist = FVector::Dist(RandomLocation.Location, EvaderActor->GetActorLocation());
+			if(SpawnDist > 1000.0f)
+			{
+				bValidLocationFound = true;
+			}
+		}
+
+		RetryCount++;
+	}
+
+	FRotator RandomRot = FRotator(0.0f, FMath::RandRange(0.0f, 360.0f), 0.0f);
+	Pursuer->ResetAgent(RandomLocation.Location, RandomRot);
+}

@@ -15,13 +15,19 @@ class RLWORLD_API AEvaderAgent : public ACharacterBase
 {
 	GENERATED_BODY()
 
-protected:
-	/** Default walk speed when not sprinting or recovering */
-	UPROPERTY(EditAnywhere, Category = "Walk")
-	float WalkSpeed = 250.0f;
+public:
+	void PickNewGoal();
+
+	UPROPERTY(BlueprintReadOnly)
+	FVector CurrentGoalLocation;
 
 protected:
 	/** Gameplay initialization */
 	virtual void BeginPlay() override;
 
+	virtual void Tick(float DeltaTime) override;
+
+	/** Default walk speed when not sprinting or recovering */
+	UPROPERTY(EditAnywhere, Category = "Walk")
+	float WalkSpeed = 250.0f;
 };

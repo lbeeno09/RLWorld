@@ -3,72 +3,108 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Pursuer/PursuerAgent.h"
-#include "Pursuer/PursuerInteractor.h"
-#include "Pursuer/PursuerTrainingEnv.h"
-#include "Evader/EvaderAgent.h"
 #include "LearningAgentsManager.h"
+#include "LearningArray.h"
+#include "GameFramework/Actor.h"
+
 #include "LearningAgentsInteractor.h"
 #include "LearningAgentsPolicy.h"
 #include "LearningAgentsCritic.h"
-#include "LearningAgentsCommunicator.h"
 #include "LearningAgentsPPOTrainer.h"
-#include "GameFramework/Actor.h"
+#include "LearningAgentsCommunicator.h"
 #include "PursuerManager.generated.h"
 
-UCLASS(Abstract)
+class APursuerAgent;
+class AEvaderAgent;
+class UPursuerInteractor;
+class UPursuerTrainingEnv;
+class ULearningAgentsPolicy;
+class ULearningAgentsCritic;
+class ULearningAgentsPPOTrainer;
+
+
+UCLASS()
 class RLWORLD_API APursuerManager : public AActor
 {
 	GENERATED_BODY()
 	
-protected:
-	UPROPERTY(EditAnywhere)
-	ULearningAgentsManager* PursuerManager;
-
-	UPROPERTY(EditAnywhere, Category = "Learning Agents|Settings")
-	bool bRunInference = false;
-
-	TArray<APursuerAgent*> PursuerActors;
-	AEvaderAgent* EvaderActor;
-	UPursuerInteractor* PursuerInteractor;
-	FLearningAgentsPolicySettings PursuerPolicySettings;
-	ULearningAgentsPolicy* PursuerPolicy;
-	FLearningAgentsCriticSettings PursuerCriticSettings;
-	ULearningAgentsCritic* PursuerCritic;
-	UPursuerTrainingEnv* PursuerTrainingEnv;
-	FLearningAgentsTrainerProcessSettings PursuerTrainerProcessSettings;
-	FLearningAgentsSharedMemoryCommunicatorSettings PursuerSharedMemorySettings;
-	FLearningAgentsCommunicator PursuerCommunicator;
-	FLearningAgentsPPOTrainerSettings PursuerTrainerSettings;
-	ULearningAgentsPPOTrainer* PursuerPPOTrainer;
-	FLearningAgentsPPOTrainingSettings PursuerTrainerTrainingSettings;
-	FLearningAgentsTrainingGameSettings PursuerTrainingGameSettings;
-
-protected:
-	UPROPERTY(EditAnywhere, Category="Learning Agents|Data Assets")
-	TObjectPtr<ULearningAgentsNeuralNetwork> PursuerDAEncoder;
-
-	UPROPERTY(EditAnywhere, Category = "Learning Agents|Data Assets")
-	TObjectPtr<ULearningAgentsNeuralNetwork> PursuerDAPolicy;
-
-	UPROPERTY(EditAnywhere, Category = "Learning Agents|Data Assets")
-	TObjectPtr<ULearningAgentsNeuralNetwork> PursuerDADecoder;
-
-	UPROPERTY(EditAnywhere, Category = "Learning Agents|Data Assets")
-	TObjectPtr<ULearningAgentsNeuralNetwork> PursuerDACritic;
-
-public:	
+public:
 	// Sets default values for this actor's properties
 	APursuerManager();
 
 protected:
-	virtual void OnConstruction(const FTransform& Transform) override;
-
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	void HandleAgentReset(const int32 AgentId);
+
+
+	// Core Manager
+	UPROPERTY(VisibleAnywhere, Category="Learning Agents")
+	ULearningAgentsManager* PursuerManager;
+
+	// RL Component
+	UPROPERTY(Transient)
+	UPursuerInteractor* PursuerInteractor;
+
+	UPROPERTY(Transient)
+	UPursuerTrainingEnv* PursuerTrainingEnv;
+
+	UPROPERTY(Transient)
+	ULearningAgentsPolicy* PursuerPolicy;
+
+	UPROPERTY(Transient)
+	ULearningAgentsCritic* PursuerCritic;
+
+	UPROPERTY(Transient)
+	ULearningAgentsPPOTrainer* PursuerPPOTrainer;
+
+	// Data Assetss
+	UPROPERTY(EditAnywhere, Category = "Learning Agents|Data Assets")
+	ULearningAgentsNeuralNetwork* PursuerDAEncoder;
+
+	UPROPERTY(EditAnywhere, Category = "Learning Agents|Data Assets")
+	ULearningAgentsNeuralNetwork* PursuerDAPolicy;
+
+	UPROPERTY(EditAnywhere, Category = "Learning Agents|Data Assets")
+	ULearningAgentsNeuralNetwork* PursuerDADecoder;
+
+	UPROPERTY(EditAnywhere, Category = "Learning Agents|Data Assets")
+	ULearningAgentsNeuralNetwork* PursuerDACritic;
+
+	// Actors
+	UPROPERTY(EditAnywhere, Category = "Learning Agents|Evaders")
+	AEvaderAgent* EvaderActor;
+
+
+	// Settings
+	UPROPERTY(EditAnywhere, Category = "Learning Agents|Settings")
+	bool bRunInference = false;
+
+	UPROPERTY(EditAnywhere, Category = "Learning Agents|Settings")
+	FLearningAgentsPolicySettings PursuerPolicySettings;
+
+	UPROPERTY(EditAnywhere, Category = "Learning Agents|Settings")
+	FLearningAgentsCriticSettings PursuerCriticSettings;
+
+	UPROPERTY(EditAnywhere, Category = "Learning Agents|Settings")
+	FLearningAgentsPPOTrainerSettings PursuerTrainerSettings;
+
+	UPROPERTY(EditAnywhere, Category = "Learning Agents|Settings")
+	FLearningAgentsPPOTrainingSettings PursuerTrainingSettings;
+
+	UPROPERTY(EditAnywhere, Category = "Learning Agents|Settings")
+	FLearningAgentsTrainingGameSettings PursuerGameSettings;
+
+	// Communicator Variables
+	UPROPERTY(EditAnywhere, Category = "Learning Agents|Communicator")
+	FLearningAgentsTrainerProcessSettings PursuerTrainerProcessSettings;
+
+	UPROPERTY(EditAnywhere, Category = "Learning Agents|Communicator")
+	FLearningAgentsSharedMemoryCommunicatorSettings PursuerSharedMemorySettings;
+
+	FLearningAgentsCommunicator PursuerCommunicator;
 };

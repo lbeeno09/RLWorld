@@ -17,16 +17,10 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Walk")
 	float WalkSpeed = 250.0f;
 
-	UPROPERTY(EditAnywhere)
-	FVector SpawnLocation;
-
-	UPROPERTY(EditAnywhere)
-	FRotator SpawnRotation;
-
 protected:
 	/** Gameplay initialization */
 	virtual void BeginPlay() override;
 
 public:
-	void ResetToSpawn();
+	void ResetAgent(const FVector& NewLocation, const FRotator& NewRotation);
 };

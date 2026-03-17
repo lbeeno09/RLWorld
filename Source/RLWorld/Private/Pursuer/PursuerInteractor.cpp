@@ -3,105 +3,66 @@
 
 #include "Pursuer/PursuerInteractor.h"
 #include "Pursuer/PursuerAgent.h"
-#include "LearningAgentsManager.h"
+#include "Evader/EvaderAgent.h"
+#include "LearningAgentsObservations.h"
+#include "LearningAgentsActions.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
-void UPursuerInteractor::SpecifyAgentObservation(FLearningAgentsObservationSchemaElement& OutObservationSchemaElement, ULearningAgentsObservationSchema* InObservationSchema)
+void UPursuerInteractor::SpecifyAgentObservation_Implementation(FLearningAgentsObservationSchemaElement& OutObservationSchemaElement, ULearningAgentsObservationSchema* InObservationSchema)
 {
-	// Agent Data
-	FLearningAgentsObservationSchemaElement VelocityObs = ULearningAgentsObservations::SpecifyVelocityObservation(InObservationSchema, 600.0f);
-
-	TMap<FName, FLearningAgentsObservationSchemaElement> VelocityMap;
-	VelocityMap.Add(FName("Velocity"), VelocityObs);
-
-	FLearningAgentsObservationSchemaElement VelocityStruct = ULearningAgentsObservations::SpecifyStructObservation(InObservationSchema, VelocityMap);
-
-	// Target Data
-	FLearningAgentsObservationSchemaElement LocationObs = ULearningAgentsObservations::SpecifyLocationObservation(InObservationSchema, 1000.0f);
-
-	TMap<FName, FLearningAgentsObservationSchemaElement> LocationMap;
-	LocationMap.Add(FName("Location"), LocationObs);
-
-	FLearningAgentsObservationSchemaElement LocationStruct = ULearningAgentsObservations::SpecifyStructObservation(InObservationSchema, LocationMap);
-
-	// Total Struct
 	TMap<FName, FLearningAgentsObservationSchemaElement> ObsMap;
-	ObsMap.Add(FName("Agent"), VelocityStruct);
-	ObsMap.Add(FName("Target"), LocationStruct);
 
-	FLearningAgentsObservationSchemaElement ObsStruct = ULearningAgentsObservations::SpecifyStructObservation(InObservationSchema, ObsMap);
+	ObsMap.Add(TEXT("SelfVelocity"), ULearningAgentsObservations::SpecifyVelocityObservation(InObservationSchema, 800.0f));
+	ObsMap.Add(TEXT("RelativeTargetLocation"), ULearningAgentsObservations::SpecifyLocationObservation(InObservationSchema, 6000.0f));
+	ObsMap.Add(TEXT("TargetVelocity"), ULearningAgentsObservations::SpecifyVelocityObservation(InObservationSchema, 800.0f));
 
-	OutObservationSchemaElement = ObsStruct;
+	OutObservationSchemaElement = ULearningAgentsObservations::SpecifyStructObservation(InObservationSchema, ObsMap);
 }
 
-void UPursuerInteractor::GatherAgentObservation(FLearningAgentsObservationObjectElement& OutObservationObjectElement, ULearningAgentsObservationObject* InObservationObject, const int32 AgentId)
+void UPursuerInteractor::GatherAgentObservation_Implementation(FLearningAgentsObservationObjectElement& OutObservationObjectElement, ULearningAgentsObservationObject* InObservationObject, const int32 AgentId)
 {
-	APursuerAgent* ObsActor = Cast<APursuerAgent>(GetAgent(AgentId));
+	APursuerAgent* Pursuer = Cast<APursuerAgent>(GetAgent(AgentId));
+	if(!Pursuer || !TargetObject)
+	{
+		return;
+	}
 
-	// Agent Velocity
-	FVector AgentVelocity = ObsActor->GetVelocity();
-	FTransform AgentTransform = ObsActor->GetActorTransform();
-	FLearningAgentsObservationObjectElement VelocityObs = ULearningAgentsObservations::MakeVelocityObservation(InObservationObject, AgentVelocity, AgentTransform);
-
-	TMap<FName, FLearningAgentsObservationObjectElement> VelocityMap;
-	VelocityMap.Add(FName("Velocity"), VelocityObs);
-
-	FLearningAgentsObservationObjectElement VelocityStruct = ULearningAgentsObservations::MakeStructObservation(InObservationObject, VelocityMap);
-
-	// Target Location
-	FVector TargetLocation = TargetObject->GetActorLocation();
-	FTransform TargetTransform = TargetObject->GetActorTransform();
-
-	FLearningAgentsObservationObjectElement LocationObs = ULearningAgentsObservations::MakeLocationObservation(InObservationObject, TargetLocation, TargetTransform);
-
-	TMap<FName, FLearningAgentsObservationObjectElement> LocationMap;
-	LocationMap.Add(FName("Location"), LocationObs);
-
-	FLearningAgentsObservationObjectElement LocationStruct = ULearningAgentsObservations::MakeStructObservation(InObservationObject, LocationMap);
-
-	// Total Struct
 	TMap<FName, FLearningAgentsObservationObjectElement> ObsMap;
-	ObsMap.Add(FName("Agent"), VelocityStruct);
-	ObsMap.Add(FName("Target"), LocationStruct);
 
-	FLearningAgentsObservationObjectElement ObsStruct = ULearningAgentsObservations::MakeStructObservation(InObservationObject, ObsMap);
-
-	OutObservationObjectElement = ObsStruct;
+	ObsMap.Add(FName("SelfVelocity"), ULearningAgentsObservations::MakeVelocityObservation(InObservationObject, Pursuer->GetVelocity(), Pursuer->GetActorTransform()));
+	ObsMap.Add(FName("RelativeTargetLocation"), ULearningAgentsObservations::MakeLocationObservation(InObservationObject, TargetObject->GetActorLocation(), Pursuer->GetActorTransform()));
+	ObsMap.Add(FName("TargetVelocity"), ULearningAgentsObservations::MakeVelocityObservation(InObservationObject, TargetObject->GetVelocity(), Pursuer->GetActorTransform()));
+	
+	OutObservationObjectElement = ULearningAgentsObservations::MakeStructObservation(InObservationObject, ObsMap);
 }
 
-void UPursuerInteractor::SpecifyAgentAction(FLearningAgentsActionSchemaElement& OutActionSchemaElement, ULearningAgentsActionSchema* InActionSchema)
+void UPursuerInteractor::SpecifyAgentAction_Implementation(FLearningAgentsActionSchemaElement& OutActionSchemaElement, ULearningAgentsActionSchema* InActionSchema)
 {
-	// Agent Data
-	FLearningAgentsActionSchemaElement VelocityAct = ULearningAgentsActions::SpecifyVelocityAction(InActionSchema, 600.0f);
+	TMap<FName, FLearningAgentsActionSchemaElement> ActionMap;
 
-	TMap<FName, FLearningAgentsActionSchemaElement> VelocityMap;
-	VelocityMap.Add(FName("Velocity"), VelocityAct);
-		
-	FLearningAgentsActionSchemaElement ActStruct = ULearningAgentsActions::SpecifyStructAction(InActionSchema, VelocityMap);
+	ActionMap.Add(TEXT("MoveAction"), ULearningAgentsActions::SpecifyVelocityAction(InActionSchema, 800.0f));
 
-	OutActionSchemaElement = ActStruct;
+	OutActionSchemaElement = ULearningAgentsActions::SpecifyStructAction(InActionSchema, ActionMap);
 }
 
-void UPursuerInteractor::PerformAgentAction(const ULearningAgentsActionObject* InActionObject, const FLearningAgentsActionObjectElement& InActionObjectElement, const int32 AgentId)
+void UPursuerInteractor::PerformAgentAction_Implementation(const ULearningAgentsActionObject* InActionObject, const FLearningAgentsActionObjectElement& InActionObjectElement, const int32 AgentId)
 {
-	APursuerAgent* ActActor = Cast<APursuerAgent>(GetAgent(AgentId));
+	APursuerAgent* Pursuer = Cast<APursuerAgent>(GetAgent(AgentId));
+	if(!Pursuer)
+	{
+		return;
+	}
 
 	// Get Action Struct
-	TMap<FName, FLearningAgentsActionObjectElement> ActionStruct;
-	ULearningAgentsActions::GetStructAction(ActionStruct, InActionObject, InActionObjectElement);
+	TMap<FName, FLearningAgentsActionObjectElement> ActionMap;
+	ULearningAgentsActions::GetStructAction(ActionMap, InActionObject, InActionObjectElement);
 
 	// Get Action Velocity
-	FLearningAgentsActionObjectElement VelocityElement = *ActionStruct.Find(FName("Velocity"));
-	FVector AgentVelocity;
-	ULearningAgentsActions::GetVelocityAction(AgentVelocity, InActionObject, VelocityElement, ActActor->GetActorTransform());
+	FVector MoveVelocity;
+	ULearningAgentsActions::GetVelocityAction(MoveVelocity, InActionObject, ActionMap[TEXT("MoveAction")]);
 
 	// Perform Action
-	ActActor->AddMovementInput(AgentVelocity);
-}
-
-void UPursuerInteractor::SetTargetObject(AEvaderAgent*& Target)
-{
-	if(Target->IsA<AEvaderAgent>() == TargetObject->IsA<AEvaderAgent>())
-	{
-		TargetObject = Target;
-	}
+	//Pursuer->AddMovementInput(MoveVelocity.GetSafeNormal(), MoveVelocity.Size() / 800.0f);
+	Pursuer->AddMovementInput(Pursuer->GetActorForwardVector(), MoveVelocity.X / 800.0f);
+	Pursuer->AddMovementInput(Pursuer->GetActorRightVector(), MoveVelocity.Y / 800.0f);
 }

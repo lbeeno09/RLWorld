@@ -15,6 +15,7 @@ public class RLWorld : ModuleRules
             "Engine",
             "InputCore",
             "EnhancedInput",
+            "NavigationSystem",
             "Learning",
             "LearningTraining",
             "LearningAgents",

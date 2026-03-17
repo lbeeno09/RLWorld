@@ -16,17 +16,16 @@ class RLWORLD_API UPursuerTrainingEnv : public ULearningAgentsTrainingEnvironmen
 {
 	GENERATED_BODY()
 	
-protected:
-	UPROPERTY(EditAnywhere)
-	TObjectPtr<AEvaderAgent> TargetObject;
-
-protected:
-	void GatherAgentReward(float& OutReward, const int32 AgentId);
-
-	void GatherAgentCompletion(ELearningAgentsCompletion& OutCompletion, const int32 AgentId);
-
-	void ResetAgentEpisode(const int32 AgentId);
-
 public:
 	void SetTargetObject(AEvaderAgent* Target) { TargetObject = Target; }
+
+protected:
+	virtual void GatherAgentReward_Implementation(float& OutReward, const int32 AgentId) override;
+
+	virtual void GatherAgentCompletion_Implementation(ELearningAgentsCompletion& OutCompletion, const int32 AgentId) override;
+
+	virtual void ResetAgentEpisode_Implementation(const int32 AgentId) override;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<AEvaderAgent> TargetObject;
 };

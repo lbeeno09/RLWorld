@@ -3,11 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Evader/EvaderAgent.h"
 #include "LearningAgentsInteractor.h"
-#include "LearningAgentsObservations.h"
-#include "LearningAgentsActions.h"
 #include "PursuerInteractor.generated.h"
+
+class AEvaderAgent;
+class APursuerAgent;
 
 /**
  * 
@@ -16,19 +16,20 @@ UCLASS()
 class RLWORLD_API UPursuerInteractor : public ULearningAgentsInteractor
 {
 	GENERATED_BODY()
-	
-protected:
-	AEvaderAgent* TargetObject;
-
-protected:
-	void SpecifyAgentObservation(FLearningAgentsObservationSchemaElement& OutObservationSchemaElement, ULearningAgentsObservationSchema* InObservationSchema);
-
-	void GatherAgentObservation(FLearningAgentsObservationObjectElement& OutObservationObjectElement, ULearningAgentsObservationObject* InObservationObject, const int32 AgentId);
-
-	void SpecifyAgentAction(FLearningAgentsActionSchemaElement& OutActionSchemaElement, ULearningAgentsActionSchema* InActionSchema);
-
-	void PerformAgentAction(const ULearningAgentsActionObject* InActionObject, const FLearningAgentsActionObjectElement& InActionObjectAlement, const int32 AgentId);
 
 public:
-	void SetTargetObject(AEvaderAgent*& Target);
+	void SetTargetObject(AEvaderAgent* InTarget) { TargetObject = InTarget; }
+
+protected:
+	virtual void SpecifyAgentObservation_Implementation(FLearningAgentsObservationSchemaElement& OutObservationSchemaElement, ULearningAgentsObservationSchema* InObservationSchema) override;
+
+	virtual void GatherAgentObservation_Implementation(FLearningAgentsObservationObjectElement& OutObservationObjectElement, ULearningAgentsObservationObject* InObservationObject, const int32 AgentId) override;
+
+	virtual void SpecifyAgentAction_Implementation(FLearningAgentsActionSchemaElement& OutActionSchemaElement, ULearningAgentsActionSchema* InActionSchema) override;
+
+	virtual void PerformAgentAction_Implementation(const ULearningAgentsActionObject* InActionObject, const FLearningAgentsActionObjectElement& InActionObjectElement, const int32 AgentId) override;
+
+private:
+	UPROPERTY()
+	AEvaderAgent* TargetObject;
 };
