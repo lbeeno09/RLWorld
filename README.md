@@ -1,23 +1,27 @@
 # RLWorld
-Unreal map for my Master's Thesis
+Unreal Project for my Master's Thesis
 
-## Leaning Agents Flow
+## Project Overview:
+A decentralized MARL environmetn build in Unreal Engine 5.6 using Learning Agents plugin. the system features multiple pursuers (RL Agent) tasked with intercepting and capturing 1 evader(State Tree AI) before it reaches a goal.
 
-- Manager (Manages Agens w/ ID)
-	- Policy
-		- Run Inference
-	- PPO Trainer
-		- Run Training
+In this Pursuit-evasion game scenario, the pursuer is learnt through Learning Agents plugin and the evader is learnt through State Tree AI. Due to this project focusing on the pursuers' actions, the evader's actions will be limited such that it is predictable.
 
-- Interactor (Exchanges with Manager's Policy and Manager's PPO Trainer)
-	- Specify Observation
-	- Gather Observation
-	- Specify Actions
-	- Perform Actions
+## Key Implmentations
 
-- Training Environment (Exchanges with Manager's PPO Trainer)
-	- Gather Rewards
-	- Gather Completions
-	- Reset Episode
+The Learning follow this general implementation: Initialization, observation, completion, and reset
 
-All the overriding methods in Interactor and Training Environment are unique to applications
+1. Initialization
+
+Agents registers with the LearningAgnetsManager via tagged sarch in BeginPlay
+
+2. Observation
+
+The Interactor gathers relative vectors between pursuers, evader, and the goal as well as perform actions of each pursuers
+
+3. Completion
+
+The Training Environment calculates the threshold of contact between pursuer/evader or evader/goal and triggers a success state.
+
+4. Reset.
+
+The Training Environment loops thgh each agents calling each of their respect reset function to change the starting point.
