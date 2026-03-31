@@ -6,6 +6,10 @@ A decentralized MARL environmetn build in Unreal Engine 5.6 using Learning Agent
 
 In this Pursuit-evasion game scenario, the pursuer is learnt through Learning Agents plugin and the evader is learnt through State Tree AI. Due to this project focusing on the pursuers' actions, the evader's actions will be limited such that it is predictable.
 
+![Test map](images/map1.png "One of the test maps")
+
+This test map consists of a square map with 4 walled obstacles. each agents are placed on the corners, pursures colored in red and evader color in green the circular ball in the middle is the goal the evader reaches.
+
 ## Key Implmentations
 
 The Learning follow this general implementation: Initialization, observation, completion, and reset
