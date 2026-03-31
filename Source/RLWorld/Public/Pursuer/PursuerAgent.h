@@ -3,24 +3,28 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "CharacterBase.h"
 #include "GameFramework/Character.h"
 #include "PursuerAgent.generated.h"
 
-UCLASS(Abstract)
-class RLWORLD_API APursuerAgent : public ACharacterBase
+UCLASS()
+class RLWORLD_API APursuerAgent : public ACharacter
 {
 	GENERATED_BODY()
 
-protected:
-	/** Default walk speed when not sprinting or recovering */
-	UPROPERTY(EditAnywhere, Category = "Walk")
-	float WalkSpeed = 250.0f;
+public:
+	APursuerAgent();
+
+	UFUNCTION(BlueprintCallable, Category = "Learning Agents")
+	void SetAgentID(int32 InID) { MyAgentID = InID; }
+
+	UPROPERTY(BlueprintReadOnly, Category="Learning Agents")
+	int32 MyAgentID = -1;
 
 protected:
 	/** Gameplay initialization */
 	virtual void BeginPlay() override;
 
-public:
-	void ResetAgent(const FVector& NewLocation, const FRotator& NewRotation);
+private:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	USkeletalMeshComponent* FirstPersonMesh;
 };

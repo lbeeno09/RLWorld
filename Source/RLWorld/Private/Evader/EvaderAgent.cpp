@@ -1,44 +1,26 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Evader/EvaderAgent.h"
+#include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "NavigationSystem.h"
 
-void AEvaderAgent::PickNewGoal()
+AEvaderAgent::AEvaderAgent()
 {
-	UNavigationSystemV1* NavSys = FNavigationSystem::GetCurrent<UNavigationSystemV1>(GetWorld());
-	if(NavSys)
-	{
-		FNavLocation RandomLocation;
-		if(NavSys->GetRandomReachablePointInRadius(FVector::ZeroVector, 5000.0f, RandomLocation))
-		{
-			CurrentGoalLocation = RandomLocation.Location;
-		}
-	}
+	PrimaryActorTick.bCanEverTick = true;
+
+	// Set size for collision capsule
+	GetCapsuleComponent()->InitCapsuleSize(34.f, 96.0f);
+
+	FirstPersonMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("First Person Mesh"));
+	FirstPersonMesh->SetupAttachment(GetMesh());
+
+	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 }
 
 void AEvaderAgent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// Initialize the walk speed
-	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
-
-	PickNewGoal();
 }
 
-void AEvaderAgent::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-	FVector Direction = (CurrentGoalLocation - GetActorLocation()).GetSafeNormal();
-	float DistanceToGoal = FVector::Dist(GetActorLocation(), CurrentGoalLocation);
-	if(DistanceToGoal > 150.0f)
-	{
-		AddMovementInput(Direction, 1.0f);
-	}
-	else
-	{
-		PickNewGoal();
-	}
-}

@@ -3,31 +3,25 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "CharacterBase.h"
 #include "GameFramework/Character.h"
 #include "EvaderAgent.generated.h"
 
 /**
  * 
  */
-UCLASS(Abstract)
-class RLWORLD_API AEvaderAgent : public ACharacterBase
+UCLASS()
+class RLWORLD_API AEvaderAgent : public ACharacter
 {
 	GENERATED_BODY()
 
 public:
-	void PickNewGoal();
-
-	UPROPERTY(BlueprintReadOnly)
-	FVector CurrentGoalLocation;
+	AEvaderAgent();
 
 protected:
 	/** Gameplay initialization */
 	virtual void BeginPlay() override;
 
-	virtual void Tick(float DeltaTime) override;
-
-	/** Default walk speed when not sprinting or recovering */
-	UPROPERTY(EditAnywhere, Category = "Walk")
-	float WalkSpeed = 250.0f;
+private:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	USkeletalMeshComponent* FirstPersonMesh;
 };
