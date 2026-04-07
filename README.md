@@ -1,6 +1,15 @@
 # RLWorld
 Unreal Project for my Master's Thesis
 
+## How to build
+cloning this repository will only provide the config, content, c++ source, and the uproject file. doing these step will create the full project.
+
+1. Right click on .uproject and click ``Generate Visual Studio project files``
+2. open .sln file
+3. press Ctrl+F5 to run
+
+if built successfully, the unreal editor will open and be able to proceed.
+
 ## Project Overview:
 A decentralized MARL environmetn build in Unreal Engine 5.6 using Learning Agents plugin. the system features multiple pursuers (RL Agent) tasked with intercepting and capturing 1 evader(State Tree AI) before it reaches a goal.
 
