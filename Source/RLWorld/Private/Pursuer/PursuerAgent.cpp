@@ -1,6 +1,7 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Pursuer/PursuerAgent.h"
+#include "Pursuer/PursuerAIController.h"
 #include "Components/CapsuleComponent.h"
 
 APursuerAgent::APursuerAgent()
@@ -10,13 +11,6 @@ APursuerAgent::APursuerAgent()
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(34.f, 96.0f);
 
-	FirstPersonMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("First Person Mesh"));
-	FirstPersonMesh->SetupAttachment(GetMesh());
+	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+	AIControllerClass = APursuerAIController::StaticClass();
 }
-
-void APursuerAgent::BeginPlay()
-{
-	Super::BeginPlay();
-
-}
-

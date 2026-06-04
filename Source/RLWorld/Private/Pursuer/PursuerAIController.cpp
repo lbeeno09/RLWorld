@@ -1,0 +1,9 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+#include "Pursuer/PursuerAIController.h"
+
+APursuerAIController::APursuerAIController()
+{
+	PrimaryActorTick.bCanEverTick = false;
+
+}

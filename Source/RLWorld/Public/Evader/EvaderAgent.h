@@ -16,12 +16,4 @@ class RLWORLD_API AEvaderAgent : public ACharacter
 
 public:
 	AEvaderAgent();
-
-protected:
-	/** Gameplay initialization */
-	virtual void BeginPlay() override;
-
-private:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
-	USkeletalMeshComponent* FirstPersonMesh;
 };
