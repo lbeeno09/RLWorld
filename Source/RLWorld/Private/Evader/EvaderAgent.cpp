@@ -1,26 +1,30 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Evader/EvaderAgent.h"
+#include "Evader/EvaderAIController.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "NavigationSystem.h"
+#include "Kismet/KismetMathLibrary.h"
 
 AEvaderAgent::AEvaderAgent()
 {
 	PrimaryActorTick.bCanEverTick = true;
-
-	// Set size for collision capsule
+	
 	GetCapsuleComponent()->InitCapsuleSize(34.f, 96.0f);
 
-	FirstPersonMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("First Person Mesh"));
-	FirstPersonMesh->SetupAttachment(GetMesh());
-
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
+	AIControllerClass = AEvaderAIController::StaticClass();
 }
 
-void AEvaderAgent::BeginPlay()
+void AEvaderAgent::SetSpawnLocation(FVector Location)
 {
-	Super::BeginPlay();
-
+	SpawnLocation = Location;
 }
 
+void AEvaderAgent::ResetActor()
+{
+	float RandomYaw = UKismetMathLibrary::RandomFloatInRange(0.0f, 360.0f);
+	FRotator RandomRotation = FRotator(0.0f, RandomYaw, 0.0f);
+
+	SetActorLocationAndRotation(SpawnLocation, RandomRotation);
+}

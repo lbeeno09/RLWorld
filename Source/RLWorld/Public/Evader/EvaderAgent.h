@@ -17,11 +17,9 @@ class RLWORLD_API AEvaderAgent : public ACharacter
 public:
 	AEvaderAgent();
 
-protected:
-	/** Gameplay initialization */
-	virtual void BeginPlay() override;
+	void ResetActor();
+	void SetSpawnLocation(FVector Location);
 
 private:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", meta = (AllowPrivateAccess = "true"))
-	USkeletalMeshComponent* FirstPersonMesh;
+	FVector SpawnLocation;
 };
