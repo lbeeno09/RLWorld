@@ -21,7 +21,7 @@ void UPursuerInteractor::SpecifyAgentObservation_Implementation(FLearningAgentsO
 	ObservationStruct.Add(FName("RelativeGoal"), RelativeEvader);
 
 	// Evader Forward
-	RelativeEvader = ULearningAgentsObservations::SpecifyLocationObservation(InObservationSchema);
+	RelativeEvader = ULearningAgentsObservations::SpecifyDirectionObservation(InObservationSchema);
 	ObservationStruct.Add(FName("SelfForward"), RelativeEvader);
 
 	OutObservationSchemaElement = ULearningAgentsObservations::SpecifyStructObservation(InObservationSchema, ObservationStruct);
@@ -53,6 +53,7 @@ void UPursuerInteractor::GatherAgentObservations_Implementation(TArray<FLearning
 
 		ObservationObjectArray.Add(ULearningAgentsObservations::MakeStructObservation(InObservationObject, ObservationStruct));
 	}
+	OutObservationObjectElements = ObservationObjectArray;
 }
 
 // --- Actions ---
@@ -78,9 +79,10 @@ void UPursuerInteractor::PerformAgentActions_Implementation(const ULearningAgent
 		ULearningAgentsActions::GetStructAction(ActionStruct, InActionObject, ActionElement);
 
 		// Move Action
-		FLearningAgentsActionObjectElement* MoveAction = ActionStruct.Find(FName("Move"));
+		FLearningAgentsActionObjectElement MoveAction = *ActionStruct.Find(FName("RelativeEvader"));
 		FVector MoveVector;
-		ULearningAgentsActions::GetVelocityAction(MoveVector, InActionObject, ActionElement, CurrentAgent->GetActorTransform());
+		ULearningAgentsActions::GetVelocityAction(MoveVector, InActionObject, MoveAction, CurrentAgent->GetActorTransform());
+
 		CurrentAgent->AddMovementInput(MoveVector);
 	}
 }

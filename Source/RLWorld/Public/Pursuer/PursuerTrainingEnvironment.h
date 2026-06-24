@@ -25,4 +25,6 @@ protected:
 	virtual void GatherAgentCompletions_Implementation(TArray<ELearningAgentsCompletion>& OutCompletions, const TArray<int32>& AgentIds) override;
 	virtual void ResetAgentEpisodes_Implementation(const TArray<int32>& AgentIds) override;
 
+private:
+	FVector GetRandomPointInMap(const FVector& Origin, float Radius);
 };

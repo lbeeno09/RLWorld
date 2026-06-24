@@ -16,4 +16,10 @@ class RLWORLD_API AEvaderAgent : public ACharacter
 
 public:
 	AEvaderAgent();
+
+	void ResetActor();
+	void SetSpawnLocation(FVector Location);
+
+private:
+	FVector SpawnLocation;
 };

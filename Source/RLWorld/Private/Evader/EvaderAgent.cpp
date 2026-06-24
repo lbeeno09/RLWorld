@@ -4,6 +4,7 @@
 #include "Evader/EvaderAIController.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 
 AEvaderAgent::AEvaderAgent()
 {
@@ -13,4 +14,17 @@ AEvaderAgent::AEvaderAgent()
 
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 	AIControllerClass = AEvaderAIController::StaticClass();
+}
+
+void AEvaderAgent::SetSpawnLocation(FVector Location)
+{
+	SpawnLocation = Location;
+}
+
+void AEvaderAgent::ResetActor()
+{
+	float RandomYaw = UKismetMathLibrary::RandomFloatInRange(0.0f, 360.0f);
+	FRotator RandomRotation = FRotator(0.0f, RandomYaw, 0.0f);
+
+	SetActorLocationAndRotation(SpawnLocation, RandomRotation);
 }

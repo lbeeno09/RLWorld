@@ -14,4 +14,9 @@ class RLWORLD_API APursuerAgent : public ACharacter
 public:
 	APursuerAgent();
 
+	void ResetActor();
+	void SetSpawnLocation(FVector Location);
+
+private:
+	FVector SpawnLocation;
 };

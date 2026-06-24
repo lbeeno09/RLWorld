@@ -13,9 +13,10 @@ void UPursuerTrainingEnvironment::GatherAgentRewards_Implementation(TArray<float
 	{
 		APursuerAgent* CurrentAgent = Cast<APursuerAgent>(GetAgent(AgentId));
 
-		float DistanceThreshold = ULearningAgentsRewards::MakeRewardOnLocationDifferenceBelowThreshold(EvaderActor->GetActorLocation(), GoalActor->GetActorLocation(), 100.0f, 10.0f);
+		//float DistanceThreshold = -1.0f * ULearningAgentsRewards::MakeRewardOnLocationDifferenceBelowThreshold(EvaderActor->GetActorLocation(), GoalActor->GetActorLocation(), 100.0f, 10.0f);
 
-		float Reward = UKismetMathLibrary::Exp(-UKismetMathLibrary::Vector_Distance(EvaderActor->GetActorLocation(), GoalActor->GetActorLocation()) / 1000.0f) + DistanceThreshold;
+		float DistanceToEvader = FVector::Dist(EvaderActor->GetActorLocation(), CurrentAgent->GetActorLocation());
+		float Reward = -0.001f * DistanceToEvader;
 		RewardArrays.Add(Reward);
 	}
 
@@ -25,13 +26,31 @@ void UPursuerTrainingEnvironment::GatherAgentRewards_Implementation(TArray<float
 void UPursuerTrainingEnvironment::GatherAgentCompletions_Implementation(TArray<ELearningAgentsCompletion>& OutCompletions, const TArray<int32>& AgentIds)
 {
 	TArray<ELearningAgentsCompletion> CompletionArrays;
-	bool hasCaught = false;
+	bool bEpisodeShouldEnd = false;
+
+	float EvaderGoalDist = FVector::Dist(EvaderActor->GetActorLocation(), GoalActor->GetActorLocation());
+	if(EvaderGoalDist < 150.0f)
+	{
+		bEpisodeShouldEnd = true;
+	}
+
+	if(!bEpisodeShouldEnd)
+	{
+		for(int32 AgentId : AgentIds)
+		{
+			APursuerAgent* CurrentAgent = Cast<APursuerAgent>(GetAgent(AgentId));
+
+			float AgentEvaderDist = FVector::Dist(EvaderActor->GetActorLocation(), CurrentAgent->GetActorLocation());
+			if(AgentEvaderDist < 150.0f)
+			{
+				bEpisodeShouldEnd = true;
+				break;
+			}
+		}
+	}
 	for(int32 AgentId : AgentIds)
 	{
-		APursuerAgent* CurrentAgent = Cast<APursuerAgent>(GetAgent(AgentId));
-
-		hasCaught = UKismetMathLibrary::Vector_Distance(EvaderActor->GetActorLocation(), CurrentAgent->GetActorLocation()) < 0.0 || UKismetMathLibrary::Vector_Distance(GoalActor->GetActorLocation(), EvaderActor->GetActorLocation()) < 0.0;
-		if(hasCaught)
+		if(bEpisodeShouldEnd)
 		{
 			CompletionArrays.Add(ELearningAgentsCompletion::Termination);
 		}
@@ -50,6 +69,15 @@ void UPursuerTrainingEnvironment::ResetAgentEpisodes_Implementation(const TArray
 	{
 		APursuerAgent* CurrentAgent = Cast<APursuerAgent>(GetAgent(AgentId));
 
-		// TODO: 
+		CurrentAgent->ResetActor();
 	}
+	EvaderActor->ResetActor();
+}
+
+FVector UPursuerTrainingEnvironment::GetRandomPointInMap(const FVector& Origin, float Radius)
+{
+	float RandomX = UKismetMathLibrary::RandomFloatInRange(Origin.X - Radius, Origin.X + Radius);
+	float RandomY = UKismetMathLibrary::RandomFloatInRange(Origin.Y - Radius, Origin.Y + Radius);
+
+	return FVector(RandomX, RandomY, Origin.Z);
 }
