@@ -3,6 +3,7 @@
 #include "Pursuer/PursuerTrainingEnvironment.h"
 #include "Pursuer/PursuerAgent.h"
 #include "Evader/EvaderAgent.h"
+#include "Evader/EvaderGoal.h"
 #include "LearningAgentsRewards.h"
 #include "Kismet/KismetMathLibrary.h"
 
@@ -72,6 +73,7 @@ void UPursuerTrainingEnvironment::ResetAgentEpisodes_Implementation(const TArray
 		CurrentAgent->ResetActor();
 	}
 	EvaderActor->ResetActor();
+	GoalActor->ResetActor();
 }
 
 FVector UPursuerTrainingEnvironment::GetRandomPointInMap(const FVector& Origin, float Radius)

@@ -18,7 +18,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pursuit|Actor")
 	class AEvaderAgent* EvaderActor;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Pursuit|Actor")
-	AActor* GoalActor;
+	class AEvaderGoal* GoalActor;
 
 protected:
 	virtual void GatherAgentRewards_Implementation(TArray<float>& OutRewards, const TArray<int32>& AgentIds) override;

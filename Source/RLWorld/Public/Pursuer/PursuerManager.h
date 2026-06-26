@@ -4,7 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "LearningAgentsPolicy.h"
+#include "LearningAgentsCritic.h"
+#include "LearningAgentsTrainer.h"
+#include "LearningAgentsTraining.h"
 #include "LearningAgentsCommunicator.h"
+#include "LearningAgentsPPOTrainer.h"
 #include "PursuerManager.generated.h"
 
 UCLASS()
@@ -14,6 +19,9 @@ class RLWORLD_API APursuerManager : public AActor
 	
 public:	
 	APursuerManager();
+
+	UFUNCTION(BlueprintCallable)
+	void TriggerManualReset();
 
 protected:
 	virtual void BeginPlay() override;
@@ -34,13 +42,37 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class ULearningAgentsPolicy* PursuerPolicy;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	struct FLearningAgentsPolicySettings PursuerPolicySettings;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class ULearningAgentsCritic* PursuerCritic;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	struct FLearningAgentsCriticSettings PursuerCriticSettings;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UPursuerTrainingEnvironment* PursuerTrainingEnv;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	struct FLearningAgentsTrainerProcessSettings PursuerTrainerProcessSettings;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	struct FLearningAgentsSharedMemoryCommunicatorSettings PursuerSharedMemorySettings;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	struct FLearningAgentsCommunicator PursuerCommunicator;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class ULearningAgentsPPOTrainer* PursuerPPOTrainer;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	struct FLearningAgentsPPOTrainerSettings PursuerTrainerSettings;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	struct FLearningAgentsPPOTrainingSettings PursuerTrainerTrainingSettings;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	struct FLearningAgentsTrainingGameSettings PursuerTrainingGameSettings;
+
+	// Data Assets
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class ULearningAgentsNeuralNetwork* PursuerEncoderAsset;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class ULearningAgentsNeuralNetwork* PursuerPolicyAsset;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class ULearningAgentsNeuralNetwork* PursuerDecoderAsset;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class ULearningAgentsNeuralNetwork* PursuerCriticAsset;
 
 	// Evader Variables
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
