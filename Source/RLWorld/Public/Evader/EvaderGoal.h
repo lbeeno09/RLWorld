@@ -14,8 +14,13 @@ class RLWORLD_API AEvaderGoal : public AActor
 public:	
 	AEvaderGoal();
 
+	void ResetActor();
+	void SetSpawnLocation(FVector Location);
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 		
+	FVector SpawnLocation;
+
 };
