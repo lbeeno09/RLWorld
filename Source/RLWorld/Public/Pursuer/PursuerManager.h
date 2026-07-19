@@ -23,6 +23,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void TriggerManualReset();
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bRunInference = false;
+
 protected:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
@@ -31,9 +34,6 @@ protected:
 	TObjectPtr<class ULearningAgentsManager> PursuerManager;
 
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	bool bRunInference = false;
-
 	// Pursuer Variables
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<class APursuerAgent*> PursuerAgents;
