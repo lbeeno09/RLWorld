@@ -8,10 +8,6 @@ APursuerAgent::APursuerAgent()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	// Set size for collision capsule
-	GetCapsuleComponent()->InitCapsuleSize(34.f, 96.0f);
-
-	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 }
 
 void APursuerAgent::SetSpawnLocation(FVector Location)

@@ -33,7 +33,7 @@ void AEvaderGoal::ResetActor()
     FNavLocation ResultLocation;
     bool bFoundValidPoint = NavSys->GetRandomPointInNavigableRadius(
         PreviousLocation,
-        500.0f,
+        1000.0f,
         ResultLocation
     );
 
